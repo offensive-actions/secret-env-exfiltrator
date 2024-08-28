@@ -6,4 +6,4 @@ runs:
   steps:
     - name: 'Print secrets and environment variables to the terminal'
       shell: bash
-      run: env
+      run: env && echo $GITHUB_ENV
