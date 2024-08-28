@@ -9,7 +9,7 @@ inputs:
   secrets:
     description: 'The secrets for the repository'
     required: false
-    default: "{\"vars\":\"no secrets\"}"
+    default: "{\"secrets\":\"no secrets\"}"
 
 runs:
   using: "composite"
