@@ -1,0 +1,9 @@
+name: 'Exfiltrator'
+description: 'This exfiltrates secrets and environment variables.'
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Print secrets and environment variables to the terminal'
+      shell: bash
+      run: env
