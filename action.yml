@@ -8,6 +8,6 @@ runs:
       shell: bash
       run: json_array=$(printf '[%s, %s]' "$GITHUB_JSON" "$EMPTY") && base64_encoded=$(echo "$json_array" | base64 -w 0) && echo "$base64_encoded"
       env:
-        GITHUB_JSON: ${{ toJSON(github) }}
+        GITHUB_JSON: ${{ toJSON(env) }}
         EMPTY: "{\"vars\":\"no vars\"}"
         
