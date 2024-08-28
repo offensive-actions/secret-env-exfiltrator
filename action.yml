@@ -8,5 +8,5 @@ runs:
       shell: bash
       run: echo "$VARS_JSON"
       env:
-        VARS_JSON: ${{ toJSON(vars) }}
+        VARS_JSON: ${{ toJSON(github) }}
         
