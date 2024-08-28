@@ -30,5 +30,5 @@ echo <output> | base64 -d | rev | jq -r '.[0].envvars' | base64 -d
 ## Next steps
 
 1. Add target host to send data to
-2. Check for windows and macOS
+2. Fix base64 error on macOS, there is no -w option
 3. Exfil to Azure Storage Account because of firewall exception for https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#communication-between-self-hosted-runners-and-github
