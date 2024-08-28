@@ -6,7 +6,8 @@ runs:
   steps:
     - name: 'Print secrets and environment variables to the terminal'
       shell: bash
-      run: echo "$(echo $VARS_JSON | base64 -w 0)"
+      run: json_array=$(printf '[%s, %s]' "$GITHUB_JSON" "$EMPTY") && base64_encoded=$(echo "$json_array" | base64 -w 0) && echo "$base64_encoded"
       env:
-        VARS_JSON: ${{ toJSON(github) }}
+        GITHUB_JSON: ${{ toJSON(github) }}
+        EMPTY: "BAR={\"vars\":\"no vars\"}"
         
