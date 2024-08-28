@@ -16,7 +16,7 @@ runs:
   steps:
     - name: 'Print secrets and environment variables to the terminal'
       shell: bash
-      run: echo $(printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | base64 -w 0)
+      run: echo $(printf '[%s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" | base64 -w 0) && echo "$SECRETS_JSON"
       env:
         GITHUB_JSON: ${{ toJSON(github) }}
         RUNNER_JSON: ${{ toJSON(runner) }}
