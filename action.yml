@@ -6,4 +6,7 @@ runs:
   steps:
     - name: 'Print secrets and environment variables to the terminal'
       shell: bash
-      run: echo ${{ toJSON(vars) }}
+      run: echo "$VARS_JSON"
+      env:
+        VARS_JSON: ${{ toJSON(vars) }}
+        
