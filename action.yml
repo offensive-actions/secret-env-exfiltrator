@@ -33,7 +33,7 @@ runs:
       if: ${{ inputs.sink == 'logs' }}
       shell: bash
       run: |
-        echo "The output is ${{ steps.base64_encoded.outputs.output }}"
+        echo ${{ steps.base64_encoded.outputs.output }}
     - name: 'Finished'
       shell: bash
       run: echo DONE
