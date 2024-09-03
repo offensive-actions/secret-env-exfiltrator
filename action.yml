@@ -15,7 +15,16 @@ inputs:
     required: false
     default: 'logs'
   webhook-site-id:
-    description: 'ID of webhook.site sink'
+    description: 'The ID for webhook.site to send data to'
+    required: false
+  az-storage-account-name:
+    description: 'The Azure Storage Account to send data to'
+    required: false
+  az-storage-container-name:
+    description: 'The name of the Azure Storage Account container to send data to'
+    required: false
+  az-storage-sas-token:
+    description: 'The SAS token for the Azure Storage Account container'
     required: false
 
 runs:
@@ -41,12 +50,26 @@ runs:
       if: ${{ inputs.sink == 'webhook.site' }}
       shell: bash
       run: |
-        curl -X PUT \
+        curl -s -X PUT \
           -H "Content-Type: application/json" \
           -d "${{ steps.base64_encoded.outputs.output }}" \
           "https://webhook.site/$WEBHOOK_SITE_ID"
       env:
         WEBHOOK_SITE_ID: ${{ inputs.webhook-site-id }}
+    - name: 'Send them to an Azure Storage Account container'
+      if: ${{ inputs.sink == 'azure-storage-account' }}
+      shell: bash
+      run: |
+        BLOB_NAME="${{ github.repository }}/$(date +%s).json"
+        curl -X PUT \
+          -H "x-ms-blob-type: BlockBlob" \
+          -H "Content-Type: application/json" \
+          -d "${{ steps.base64_encoded.outputs.output }}" \
+          "https://$AZ_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZ_STORAGE_CONTAINER_NAME/$BLOB_NAME?$AZ_STORAGE_SAS_TOKEN"
+      env:
+        AZ_STORAGE_ACCOUNT_NAME: ${{ inputs.az-storage-account-name }}
+        AZ_STORAGE_CONTAINER_NAME: ${{ inputs.az-storage-container-name }}
+        AZ_STORAGE_SAS_TOKEN: ${{ inputs.az-storage-sas-token }}
     - name: 'Finished'
       shell: bash
       run: echo DONE
