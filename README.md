@@ -91,8 +91,9 @@ echo <output> | base64 -d | rev | jq -r '.[0].envvars' | base64 -d
 
 ## Next steps
 
-Status: all steps (logs, webhook.site and Az Storage Account) work on ubuntu-latest.
+Status:
+* logs works on all OSs
+* Azure storage works only on ubuntu; on windows there are "too many arguements for curl" and on macos there is a weird problem with awk - however, it worked for logs sink, so I dont get it.
 
 1. If exfil fails to webhook or Azure, the action still succeeds, since the HTTP errors are not regarded as errors in general. Change that?
-2. Fix base64 error on macOS, there is no -w option
-3. Check for windows and macOS
+2. Fix Azure exfil for windows and macOS
