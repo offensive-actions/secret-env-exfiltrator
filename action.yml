@@ -65,7 +65,7 @@ runs:
       shell: bash
       run: |
         BLOB_NAME="${{ github.repository }}/$(date +%s).json"
-        curl -X PUT \
+        curl -s -X PUT \
           -H "x-ms-blob-type: BlockBlob" \
           -H "Content-Type: application/json" \
           -d "${{ steps.base64_encoded.outputs.output }}" \
